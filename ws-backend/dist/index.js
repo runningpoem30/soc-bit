@@ -20,8 +20,5 @@ wss.on("connection", (socket) => {
     socket.on("error", (err) => {
         console.log("ERROR:", err);
     });
-    setInterval(() => {
-        socket.send("hi there");
-    }, 2000);
 });
 //# sourceMappingURL=index.js.map

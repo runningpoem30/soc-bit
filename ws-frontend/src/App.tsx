@@ -21,8 +21,10 @@ function App() {
     setSocket(ws)
 
     ws.onmessage  = (ev) => {
-      alert(ev.data);
+      console.log(ev.data)
     }
+
+  
     
   } , [])
 

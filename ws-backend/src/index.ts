@@ -27,7 +27,5 @@ wss.on("connection", (socket) => {
         console.log("ERROR:", err);
     });
 
-    setInterval(() => {
-        socket.send("hi there")
-    } , 2000)
+    
 });
