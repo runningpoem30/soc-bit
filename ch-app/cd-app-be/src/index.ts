@@ -1,13 +1,18 @@
+import { parse } from 'node:path';
 import { WebSocket, WebSocketServer } from 'ws';
 
 const wss = new WebSocketServer({
     port : 8081 , 
-
 })
 
+interface User {
+    socket : WebSocket , 
+    room : string
+}
 
 let userCount = 0;
-let allSockets : WebSocket[] = []
+let allSockets : User[] = [];
+
 
 
 wss.on('error' , (error) => {
@@ -16,19 +21,36 @@ wss.on('error' , (error) => {
 })
 
 wss.on('connection' , (ws) => {
-    allSockets.push(ws);
-    userCount = userCount + 1 ; 
-    console.log('user connect #  ' + userCount)
+ 
+
+    ws.on('message' , (message) => {
+       const parsedMessage = JSON.parse(message as unknown as string);
+    
+
+       if(parsedMessage.type === "join"){
+            allSockets.push({
+                socket : ws , 
+                room : parsedMessage.payload.roomId
+            })
+            userCount++
+            ws.send("welcome to room number" + parsedMessage.payload.roomId)
+       }
+
+       if(parsedMessage.type === "chat"){
+        const currentUserRoom = allSockets.find((x) => x.socket == ws)?.room
+
+       allSockets.filter((user) => user.room === currentUserRoom)
+       .forEach((user) => user.socket.send(parsedMessage.payload.message))
+
+       ws.send("hi there from room" + currentUserRoom)
+       }
 
 
-    ws.on('message' , (data) => {
-        console.log('received message : '  + data.toString());
-        
-        allSockets.forEach((s) => {
-            s.send(data.toString() + "sent from the server")
-        })
+      
     })
 
 
-    //ws.send('hi there user #' + userCount )
+   ws.on("disconnect" , () =>{
+    console.log("user disconnected")
+   })
 })
